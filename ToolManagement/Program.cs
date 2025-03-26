@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+using ToolManagement.Models;
 
 namespace ToolManagement
 {
     class Program
     {
+        private static string _path = @"C:\\Users\\admin\\source\\repos\\ToolManagement\\ToolManagement\\tools-data.json";
+
         static void Main(string[] args)
         {
+
             List<Tool> tools = LoadTools();
             bool exit = false;
 
@@ -57,9 +62,9 @@ namespace ToolManagement
 
         static List<Tool> LoadTools()
         {
-            if (File.Exists("tools-data.json"))
+            if (File.Exists(_path))
             {
-                string json = File.ReadAllText("tools-data.json");
+                string json = File.ReadAllText(_path);
                 return JsonSerializer.Deserialize<List<Tool>>(json);
             }
             return new List<Tool>();
@@ -68,7 +73,7 @@ namespace ToolManagement
         static void SaveTools(List<Tool> tools)
         {
             string json = JsonSerializer.Serialize(tools);
-            File.WriteAllText("tools-data.json", json);
+            File.WriteAllText(_path, json);
             Console.WriteLine("Narzędzia zapisane");
         }
 
@@ -158,13 +163,5 @@ namespace ToolManagement
                 Console.WriteLine($"Id: {tool.Id}, Nazwa: {tool.Name}, Ilość: {tool.Quantity}, Cena: {tool.Price}");
             }
         }
-    }
-
-    class Tool
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
     }
 }
