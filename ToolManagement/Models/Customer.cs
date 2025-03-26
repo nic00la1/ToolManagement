@@ -7,30 +7,23 @@ using System.Threading.Tasks;
 namespace ToolManagement.Models
 {
     /// <summary>
-    /// Klasa reprezentująca narzędzie.
+    /// Klasa reprezentująca klienta.
     /// </summary>
-    public class Tool
+    public class Customer
     {
         /// <summary>
-        /// Identyfikator narzędzia.
+        /// Identyfikator klienta.
         /// </summary>
         public int Id { get; set; }
 
         /// <summary>
-        /// Nazwa narzędzia.
+        /// Imię klienta.
         /// </summary>
-        public string Name { get; set; }
+        public string FirstName { get; set; }
 
         /// <summary>
-        /// Ilość narzędzi.
+        /// Nazwisko klienta.
         /// </summary>
-        public int Quantity { get; set; }
-
-        /// <summary>
-        /// Cena narzędzia.
-        /// </summary>
-        public decimal Price { get; set; }
+        public string LastName { get; set; }
     }
-
-
 }

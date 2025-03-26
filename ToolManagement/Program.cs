@@ -1,28 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using ToolManagement.Models;
 
 namespace ToolManagement
 {
-    /// <summary>
-    /// Główna klasa programu do zarządzania narzędziami.
-    /// </summary>
     class Program
     {
-        /// <summary>
-        /// Ścieżka do pliku z danymi narzędzi.
-        /// </summary>
-        private static string _path = @"C:\\Users\\admin\\source\\repos\\ToolManagement\\ToolManagement\\tools-data.json";
-
-        /// <summary>
-        /// Główna metoda programu.
-        /// </summary>
-        /// <param name="args">Argumenty wiersza poleceń.</param>
         static void Main(string[] args)
         {
-            List<Tool> tools = LoadTools();
+            List<Tool> tools = ToolManager.LoadTools();
+            List<Customer> customers = CustomerManager.LoadCustomers();
             bool exit = false;
 
             while (!exit)
@@ -36,6 +23,7 @@ namespace ToolManagement
                     "Zapisz narzędzia",
                     "Wyświetl pojedyncze narzędzie",
                     "Wyświetl wszystkie narzędzia",
+                    "Panel klienta",
                     "Wyjdź"
                 };
 
@@ -44,24 +32,27 @@ namespace ToolManagement
                 switch (selectedIndex)
                 {
                     case 0:
-                        AddTool(tools);
+                        ToolManager.AddTool(tools);
                         break;
                     case 1:
-                        UpdateTool(tools);
+                        ToolManager.UpdateTool(tools);
                         break;
                     case 2:
-                        RemoveTool(tools);
+                        ToolManager.RemoveTool(tools);
                         break;
                     case 3:
-                        SaveTools(tools);
+                        ToolManager.SaveTools(tools);
                         break;
                     case 4:
-                        DisplaySingleTool(tools);
+                        ToolManager.DisplaySingleTool(tools);
                         break;
                     case 5:
-                        DisplayAllTools(tools);
+                        ToolManager.DisplayAllTools(tools);
                         break;
                     case 6:
+                        CustomerPanel(tools, customers);
+                        break;
+                    case 7:
                         exit = true;
                         break;
                 }
@@ -74,11 +65,6 @@ namespace ToolManagement
             }
         }
 
-        /// <summary>
-        /// Wyświetla menu i obsługuje nawigację za pomocą strzałek.
-        /// </summary>
-        /// <param name="options">Opcje menu.</param>
-        /// <returns>Indeks wybranej opcji.</returns>
         static int DisplayMenu(string[] options)
         {
             int selectedIndex = 0;
@@ -114,140 +100,44 @@ namespace ToolManagement
             return selectedIndex;
         }
 
-        /// <summary>
-        /// Wczytuje narzędzia z pliku JSON.
-        /// </summary>
-        /// <returns>Lista narzędzi.</returns>
-        static List<Tool> LoadTools()
+        static void CustomerPanel(List<Tool> tools, List<Customer> customers)
         {
-            if (File.Exists(_path))
+            bool exit = false;
+
+            while (!exit)
             {
-                string json = File.ReadAllText(_path);
-                return JsonSerializer.Deserialize<List<Tool>>(json);
-            }
-            return new List<Tool>();
-        }
+                Console.Clear();
+                Console.WriteLine("Panel klienta");
+                string[] options = {
+                    "Dodaj klienta",
+                    "Zamów narzędzie",
+                    "Wyświetl wszystkich klientów",
+                    "Wyjdź"
+                };
 
-        /// <summary>
-        /// Zapisuje narzędzia do pliku JSON.
-        /// </summary>
-        /// <param name="tools">Lista narzędzi do zapisania.</param>
-        static void SaveTools(List<Tool> tools)
-        {
-            string json = JsonSerializer.Serialize(tools);
-            File.WriteAllText(_path, json);
-            Console.WriteLine("Narzędzia zapisane");
-        }
+                int selectedIndex = DisplayMenu(options);
 
-        /// <summary>
-        /// Dodaje nowe narzędzie do listy narzędzi.
-        /// </summary>
-        /// <param name="tools">Lista narzędzi.</param>
-        static void AddTool(List<Tool> tools)
-        {
-            Console.Clear();
-            Console.Write("Podaj nazwę narzędzia: ");
-            string name = Console.ReadLine();
-            Console.Write("Podaj ilość narzędzi: ");
-            int quantity = int.Parse(Console.ReadLine());
-            Console.Write("Podaj cenę narzędzia: ");
-            decimal price = decimal.Parse(Console.ReadLine());
+                switch (selectedIndex)
+                {
+                    case 0:
+                        CustomerManager.AddCustomer(customers);
+                        break;
+                    case 1:
+                        CustomerManager.OrderTool(tools, customers);
+                        break;
+                    case 2:
+                        CustomerManager.DisplayAllCustomers(customers);
+                        break;
+                    case 3:
+                        exit = true;
+                        break;
+                }
 
-            if (quantity <= 0 || price <= 0)
-            {
-                Console.WriteLine("Ilość i cena muszą być liczbami dodatnimi.");
-                return;
-            }
-
-            int id = tools.Count > 0 ? tools[^1].Id + 1 : 1;
-            tools.Add(new Tool { Id = id, Name = name, Quantity = quantity, Price = price });
-            Console.WriteLine($"Dodano narzędzie {name}");
-        }
-
-        /// <summary>
-        /// Aktualizuje istniejące narzędzie na liście narzędzi.
-        /// </summary>
-        /// <param name="tools">Lista narzędzi.</param>
-        static void UpdateTool(List<Tool> tools)
-        {
-            Console.Clear();
-            Console.Write("Podaj id narzędzia: ");
-            int id = int.Parse(Console.ReadLine());
-            Tool tool = tools.Find(t => t.Id == id);
-
-            if (tool == null)
-            {
-                Console.WriteLine("Narzędzie nie znalezione.");
-                return;
-            }
-
-            Console.Write("Podaj nazwę narzędzia: ");
-            tool.Name = Console.ReadLine();
-            Console.Write("Podaj ilość narzędzi: ");
-            tool.Quantity = int.Parse(Console.ReadLine());
-            Console.Write("Podaj cenę narzędzia: ");
-            tool.Price = decimal.Parse(Console.ReadLine());
-
-            if (tool.Quantity <= 0 || tool.Price <= 0)
-            {
-                Console.WriteLine("Ilość i cena muszą być liczbami dodatnimi.");
-                return;
-            }
-
-            Console.WriteLine("Narzędzie zaktualizowane.");
-        }
-
-        /// <summary>
-        /// Usuwa narzędzie z listy narzędzi.
-        /// </summary>
-        /// <param name="tools">Lista narzędzi.</param>
-        static void RemoveTool(List<Tool> tools)
-        {
-            Console.Clear();
-            Console.Write("Podaj id narzędzia: ");
-            int id = int.Parse(Console.ReadLine());
-            Tool tool = tools.Find(t => t.Id == id);
-
-            if (tool == null)
-            {
-                Console.WriteLine("Narzędzie nie znalezione.");
-                return;
-            }
-
-            tools.Remove(tool);
-            Console.WriteLine($"Usunięto narzędzie {tool.Name}");
-        }
-
-        /// <summary>
-        /// Wyświetla pojedyncze narzędzie na podstawie jego ID.
-        /// </summary>
-        /// <param name="tools">Lista narzędzi.</param>
-        static void DisplaySingleTool(List<Tool> tools)
-        {
-            Console.Clear();
-            Console.Write("Podaj id narzędzia: ");
-            int id = int.Parse(Console.ReadLine());
-            Tool tool = tools.Find(t => t.Id == id);
-
-            if (tool == null)
-            {
-                Console.WriteLine("Narzędzie nie znalezione.");
-                return;
-            }
-
-            Console.WriteLine($"Id: {tool.Id}, Nazwa: {tool.Name}, Ilość: {tool.Quantity}, Cena: {tool.Price}");
-        }
-
-        /// <summary>
-        /// Wyświetla wszystkie narzędzia.
-        /// </summary>
-        /// <param name="tools">Lista narzędzi.</param>
-        static void DisplayAllTools(List<Tool> tools)
-        {
-            Console.Clear();
-            foreach (var tool in tools)
-            {
-                Console.WriteLine($"Id: {tool.Id}, Nazwa: {tool.Name}, Ilość: {tool.Quantity}, Cena: {tool.Price}");
+                if (!exit)
+                {
+                    Console.WriteLine("Naciśnij dowolny klawisz, aby kontynuować...");
+                    Console.ReadKey();
+                }
             }
         }
     }
