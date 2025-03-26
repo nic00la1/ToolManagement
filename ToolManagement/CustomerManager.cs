@@ -93,6 +93,8 @@ namespace ToolManagement
             tool.Quantity -= quantity;
             int orderId = orders.Count > 0 ? orders[^1].Id + 1 : 1;
             orders.Add(new Order { Id = orderId, CustomerId = customerId, ToolId = toolId, Quantity = quantity });
+            ToolManager.SaveTools(tools); // Zapisz zmiany w narzêdziach
+            SaveOrders(orders); // Zapisz zamówienia
             Console.WriteLine($"Zamówiono {quantity} sztuk {tool.Name} dla {customer.FirstName} {customer.LastName}");
         }
 
