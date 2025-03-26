@@ -10,6 +10,7 @@ namespace ToolManagement
         {
             List<Tool> tools = ToolManager.LoadTools();
             List<Customer> customers = CustomerManager.LoadCustomers();
+            List<Order> orders = CustomerManager.LoadOrders();
             bool exit = false;
 
             while (!exit)
@@ -50,7 +51,7 @@ namespace ToolManagement
                         ToolManager.DisplayAllTools(tools);
                         break;
                     case 6:
-                        CustomerPanel(tools, customers);
+                        CustomerPanel(tools, customers, orders);
                         break;
                     case 7:
                         exit = true;
@@ -100,7 +101,7 @@ namespace ToolManagement
             return selectedIndex;
         }
 
-        static void CustomerPanel(List<Tool> tools, List<Customer> customers)
+        static void CustomerPanel(List<Tool> tools, List<Customer> customers, List<Order> orders)
         {
             bool exit = false;
 
@@ -112,6 +113,7 @@ namespace ToolManagement
                     "Dodaj klienta",
                     "Zamów narzędzie",
                     "Wyświetl wszystkich klientów",
+                    "Wyświetl zamówienia klienta",
                     "Wyjdź"
                 };
 
@@ -123,12 +125,15 @@ namespace ToolManagement
                         CustomerManager.AddCustomer(customers);
                         break;
                     case 1:
-                        CustomerManager.OrderTool(tools, customers);
+                        CustomerManager.OrderTool(tools, customers, orders);
                         break;
                     case 2:
                         CustomerManager.DisplayAllCustomers(customers);
                         break;
                     case 3:
+                        CustomerManager.DisplayCustomerOrders(customers, orders, tools);
+                        break;
+                    case 4:
                         exit = true;
                         break;
                 }
